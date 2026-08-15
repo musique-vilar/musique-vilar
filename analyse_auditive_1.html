@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commentaire d'Écoute — Analyse Musicale</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════════ */
+:root {
+  --ink:        #1a1a2e;
+  --paper:      #faf8f4;
+  --white:      #ffffff;
+  --cream:      #f2ede4;
+  --gold:       #c9a84c;
+  --gold-pale:  #f5ecd4;
+  --rose:       #b86a5e;
+  --rose-pale:  #faeae8;
+  --teal:       #3a7470;
+  --teal-pale:  #e0f0ee;
+  --border:     #e0d8cc;
+  --muted:      #6b6760;
+  --sh-sm:      0 2px 8px rgba(26,26,46,.07);
+  --sh-md:      0 4px 20px rgba(26,26,46,.10);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;padding-bottom:80px}
+
+/* ═══════════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════════ */
+header{background:var(--ink);color:#fff;padding:44px 48px 36px;position:relative;overflow:hidden}
+header::before,header::after{
+  content:'♩  ♪  ♫  ♬  ♩  ♪  ♫  ♬  ♩  ♪  ♫  ♬  ♩  ♪  ♫  ♬  ♩  ♪  ♫  ♬';
+  position:absolute;left:0;right:0;font-size:14px;letter-spacing:8px;opacity:.13;
+  white-space:nowrap;overflow:hidden;
+}
+header::before{top:10px}
+header::after{bottom:10px}
+header h1{font-family:'Playfair Display',serif;font-size:clamp(26px,4.5vw,40px);font-weight:700;letter-spacing:.02em;position:relative;line-height:1.15}
+header h1 em{color:var(--gold);font-style:normal}
+header .subtitle{font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:.5;margin-top:10px;position:relative}
+
+/* ═══════════════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════════════ */
+.tabs-bar{
+  background:var(--ink);
+  border-top:1px solid rgba(255,255,255,.1);
+  display:flex;
+  gap:0;
+  max-width:100%;
+  padding:0 48px;
+}
+.tab-btn{
+  font-family:'DM Sans',sans-serif;
+  font-size:13px;
+  font-weight:500;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.45);
+  background:transparent;
+  border:none;
+  border-bottom:3px solid transparent;
+  padding:16px 24px 13px;
+  cursor:pointer;
+  transition:color .2s,border-color .2s;
+  white-space:nowrap;
+}
+.tab-btn:hover{color:rgba(255,255,255,.75)}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ═══════════════════════════════════════════════════
+   SHARED LAYOUT
+═══════════════════════════════════════════════════ */
+.container{max-width:860px;margin:0 auto;padding:0 24px}
+
+.identity-card{
+  background:var(--white);border:1px solid var(--border);border-top:4px solid var(--gold);
+  border-radius:0 0 16px 16px;padding:36px 40px;margin:40px 0 20px;
+  box-shadow:var(--sh-md);display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;
+}
+@media(max-width:620px){.identity-card{grid-template-columns:1fr;gap:24px}}
+
+.oeuvre-row{
+  background:var(--white);border:1px solid var(--border);border-left:4px solid var(--rose);
+  border-radius:0 12px 12px 0;padding:28px 36px;margin-bottom:36px;
+  box-shadow:var(--sh-sm);display:grid;grid-template-columns:1fr 1fr;gap:32px;
+}
+@media(max-width:520px){.oeuvre-row{grid-template-columns:1fr}}
+
+.field-group label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:var(--teal);font-weight:600;margin-bottom:10px}
+.field-group input{width:100%;border:none;border-bottom:2px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--ink);padding:4px 0 8px;outline:none;transition:border-color .2s}
+.field-group input:focus{border-color:var(--gold)}
+.field-group input::placeholder{color:#ccc}
+
+/* Sections (shared) */
+.section{background:var(--white);border:1px solid var(--border);border-radius:16px;margin-bottom:28px;box-shadow:var(--sh-sm);overflow:hidden}
+.section-header{background:var(--ink);color:#fff;padding:18px 28px;display:flex;align-items:center;gap:14px}
+.section-header .icon{font-size:20px}
+.section-header h2{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;letter-spacing:.04em}
+.section-body{padding:32px 30px}
+
+/* Buttons (shared) */
+.btn-row{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 32px;border:none;border-radius:50px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;letter-spacing:.04em;transition:all .22s}
+.btn-reset{background:var(--cream);color:var(--ink);border:2px solid var(--border)}
+.btn-reset:hover{background:var(--border)}
+.btn-pdf{background:var(--gold);color:var(--ink);box-shadow:0 4px 16px rgba(201,168,76,.4);font-weight:600}
+.btn-pdf:hover{background:#b8943e;box-shadow:0 6px 22px rgba(201,168,76,.5);transform:translateY(-2px)}
+.btn-pdf:disabled{opacity:.6;cursor:wait;transform:none}
+.notice{text-align:center;font-size:12.5px;color:var(--muted);margin-top:16px;font-style:italic;line-height:1.6}
+
+/* ═══════════════════════════════════════════════════
+   TAB 1 — FICHE SIMPLE
+═══════════════════════════════════════════════════ */
+
+/* Catégories (fiche simple) */
+.fs-category{
+  background:var(--white);border:1px solid var(--border);border-radius:16px;
+  margin-bottom:28px;box-shadow:var(--sh-sm);overflow:hidden;
+}
+.fs-cat-header{
+  background:var(--ink);color:#fff;padding:18px 28px;
+  display:flex;align-items:baseline;gap:14px;
+}
+.fs-cat-num{
+  font-family:'Playfair Display',serif;font-size:12px;font-weight:400;
+  opacity:.45;min-width:22px;
+}
+.fs-cat-name{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;letter-spacing:.04em}
+.fs-cat-body{padding:0}
+
+/* Rows à deux colonnes */
+.fs-row{
+  border-bottom:1px solid var(--border);
+  display:grid;
+  grid-template-columns:200px 1fr;
+}
+.fs-row:last-child{border-bottom:none}
+@media(max-width:600px){.fs-row{grid-template-columns:1fr}}
+
+.fs-row-label{
+  padding:18px 20px;
+  font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);background:var(--cream);
+  border-right:1px solid var(--border);
+  display:flex;align-items:flex-start;line-height:1.5;
+}
+@media(max-width:600px){.fs-row-label{border-right:none;border-bottom:1px solid var(--border)}}
+
+.fs-row-label .sublabel{font-weight:300;font-size:10px;letter-spacing:0;text-transform:none;display:block;margin-top:3px;font-style:italic}
+
+.fs-row-field{padding:14px 18px}
+.fs-row-field textarea{
+  width:100%;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);
+  background:transparent;border:1.5px solid transparent;border-radius:8px;
+  resize:vertical;outline:none;padding:8px 10px;line-height:1.7;
+  transition:border-color .2s,background .2s;
+}
+.fs-row-field textarea:focus{border-color:var(--border);background:var(--paper)}
+.fs-row-field textarea::placeholder{color:#bbb;font-style:italic}
+
+/* Tailles */
+.sz-sm textarea{min-height:56px}
+.sz-md textarea{min-height:84px}
+.sz-lg textarea{min-height:112px}
+.sz-xl textarea{min-height:144px}
+
+/* Bloc commentaire final (fiche simple) */
+.fs-comment{
+  background:var(--white);border:1px solid var(--border);border-radius:16px;
+  overflow:hidden;box-shadow:var(--sh-sm);margin-bottom:36px;
+}
+.fs-comment .section-header{background:var(--teal)}
+.fs-comment-body{padding:28px 30px}
+.fs-comment-body textarea{
+  width:100%;min-height:220px;border:1.5px solid var(--border);border-radius:10px;
+  padding:18px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--ink);
+  background:var(--paper);resize:vertical;outline:none;line-height:1.8;
+  transition:border-color .2s;
+}
+.fs-comment-body textarea:focus{border-color:var(--teal)}
+.fs-comment-body textarea::placeholder{color:#bbb;font-style:italic}
+
+/* ═══════════════════════════════════════════════════
+   TAB 2 — ANALYSE AUDITIVE (inchangé)
+═══════════════════════════════════════════════════ */
+.subsection{margin-bottom:32px}
+.subsection:last-child{margin-bottom:0}
+.subsection-title{font-size:10.5px;text-transform:uppercase;letter-spacing:.18em;color:var(--rose);font-weight:600;border-bottom:1.5px solid var(--rose-pale);padding-bottom:8px;margin-bottom:18px}
+.sub-label{font-size:12px;color:var(--muted);margin:18px 0 10px;font-style:italic}
+.indent{margin-left:20px}
+
+.checks{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:center}
+.check-item{display:flex;align-items:center;gap:8px;cursor:pointer;padding:7px 14px 7px 10px;border-radius:30px;border:1.5px solid var(--border);background:var(--paper);transition:all .18s;font-size:13.5px;user-select:none;line-height:1.3}
+.check-item:hover{border-color:var(--gold);background:var(--gold-pale)}
+.check-item input[type=checkbox]{display:none}
+.check-item .box{width:18px;height:18px;border:2px solid var(--border);border-radius:5px;background:#fff;display:flex;align-items:center;justify-content:center;transition:all .18s;flex-shrink:0}
+.check-item input:checked~.box{background:var(--teal);border-color:var(--teal)}
+.check-item input:checked~.box::after{content:'✓';color:#fff;font-size:12px;font-weight:700}
+.check-item input:checked~.label{color:var(--teal);font-weight:500}
+.check-item:has(input:checked){border-color:var(--teal);background:var(--teal-pale)}
+
+.inline-group{display:flex;align-items:center;gap:8px;margin-top:2px}
+.inline-group span{font-size:13px;color:var(--muted);white-space:nowrap}
+.inline-input{border:none;border-bottom:1.5px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:13.5px;color:var(--ink);padding:3px 4px;outline:none;min-width:140px;transition:border-color .2s}
+.inline-input:focus{border-color:var(--gold)}
+
+.caractere-wrap{background:var(--gold-pale);border:1px solid #e8d5a3;border-radius:10px;padding:20px 24px;margin-bottom:28px}
+.caractere-wrap label{font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#a07830;font-weight:600;display:block;margin-bottom:10px}
+.caractere-wrap input{width:100%;border:none;border-bottom:2px solid #ddc87a;background:transparent;font-size:15px;font-family:'DM Sans',sans-serif;font-style:italic;color:var(--ink);padding:4px 0 8px;outline:none;transition:border-color .2s}
+.caractere-wrap input:focus{border-color:var(--gold)}
+
+.commentaire-wrap{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--sh-sm);margin-bottom:36px}
+.commentaire-wrap .section-header{background:var(--teal)}
+.commentaire-body{padding:28px 30px}
+.commentaire-body textarea{width:100%;min-height:200px;border:1.5px solid var(--border);border-radius:10px;padding:18px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--ink);background:var(--paper);resize:vertical;outline:none;line-height:1.8;transition:border-color .2s}
+.commentaire-body textarea:focus{border-color:var(--teal)}
+.commentaire-body textarea::placeholder{color:#bbb}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     EN-TÊTE COMMUN
+═══════════════════════════════════════════════ -->
+<header>
+  <div class="container">
+    <h1>Commentaire d'<em>Écoute</em></h1>
+    <p class="subtitle">Éducation musicale</p>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════
+     ONGLETS
+═══════════════════════════════════════════════ -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="switchTab('fiche-simple', this)">✏️&nbsp; Fiche simple</button>
+  <button class="tab-btn"        onclick="switchTab('fiche-detaillee', this)">🎼&nbsp; Fiche détaillée</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     ONGLET 1 — FICHE SIMPLE
+═══════════════════════════════════════════════════════════════════ -->
+<div id="tab-fiche-simple" class="tab-panel active">
+<div class="container">
+
+  <!-- Identité -->
+  <div class="identity-card">
+    <div class="field-group"><label>Nom</label><input type="text" id="fs-nom" placeholder="Dupont"></div>
+    <div class="field-group"><label>Prénom</label><input type="text" id="fs-prenom" placeholder="Marie"></div>
+    <div class="field-group"><label>Classe</label><input type="text" id="fs-classe" placeholder="Terminale A"></div>
+  </div>
+  <div class="oeuvre-row">
+    <div class="field-group"><label>Titre de l'œuvre</label><input type="text" id="fs-titre" placeholder="Titre de l'œuvre écoutée"></div>
+    <div class="field-group"><label>Compositeur / Artiste</label><input type="text" id="fs-compositeur" placeholder="Nom du compositeur ou interprète"></div>
+  </div>
+
+  <!-- 01. Couleur -->
+  <div class="fs-category">
+    <div class="fs-cat-header">
+      <span class="fs-cat-num">01</span>
+      <span class="fs-cat-name">Couleur</span>
+    </div>
+    <div class="fs-cat-body">
+      <div class="fs-row sz-sm">
+        <div class="fs-row-label">Formation (effectif)</div>
+        <div class="fs-row-field"><textarea id="couleur-formation" placeholder="Instruments, voix, ensemble…"></textarea></div>
+      </div>
+      <div class="fs-row sz-sm">
+        <div class="fs-row-label">Caractère</div>
+        <div class="fs-row-field"><textarea id="couleur-caractere" placeholder="Expressif, lyrique, dramatique…"></textarea></div>
+      </div>
+      <div class="fs-row sz-sm">
+        <div class="fs-row-label">Nuances</div>
+        <div class="fs-row-field"><textarea id="couleur-nuances" placeholder="pp, mf, fff, crescendo…"></textarea></div>
+      </div>
+      <div class="fs-row sz-md">
+        <div class="fs-row-label">Modes de jeu</div>
+        <div class="fs-row-field"><textarea id="couleur-modes" placeholder="Pizzicato, arco, col legno, sourdine, vibrato…"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02. Espace -->
+  <div class="fs-category">
+    <div class="fs-cat-header">
+      <span class="fs-cat-num">02</span>
+      <span class="fs-cat-name">Espace</span>
+    </div>
+    <div class="fs-cat-body">
+      <div class="fs-row sz-md">
+        <div class="fs-row-label">Écriture</div>
+        <div class="fs-row-field"><textarea id="espace-ecriture" placeholder="Monodique, homophonique, polyphonique, contrapuntique…"></textarea></div>
+      </div>
+      <div class="fs-row sz-md">
+        <div class="fs-row-label">Registres, plans sonores</div>
+        <div class="fs-row-field"><textarea id="espace-registres" placeholder="Grave / médium / aigu, premier plan / arrière-plan…"></textarea></div>
+      </div>
+      <div class="fs-row sz-md">
+        <div class="fs-row-label">Mode, échelle</div>
+        <div class="fs-row-field"><textarea id="espace-mode" placeholder="Majeur, mineur, modal, pentatonique, atonal…"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03. Temps -->
+  <div class="fs-category">
+    <div class="fs-cat-header">
+      <span class="fs-cat-num">03</span>
+      <span class="fs-cat-name">Temps</span>
+    </div>
+    <div class="fs-cat-body">
+      <div class="fs-row sz-sm">
+        <div class="fs-row-label">Pulsation</div>
+        <div class="fs-row-field"><textarea id="temps-pulsation" placeholder="Régulière, irrégulière, absence de pulsation…"></textarea></div>
+      </div>
+      <div class="fs-row sz-sm">
+        <div class="fs-row-label">Tempo</div>
+        <div class="fs-row-field"><textarea id="temps-tempo" placeholder="Lent, modéré, rapide — indication métronomique…"></textarea></div>
+      </div>
+      <div class="fs-row sz-md">
+        <div class="fs-row-label">Rythme(s) caractéristique(s)</div>
+        <div class="fs-row-field"><textarea id="temps-rythme" placeholder="Pointé, syncopé, ostinato, valeurs longues / courtes…"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04. Forme -->
+  <div class="fs-category">
+    <div class="fs-cat-header">
+      <span class="fs-cat-num">04</span>
+      <span class="fs-cat-name">Forme</span>
+    </div>
+    <div class="fs-cat-body">
+      <div class="fs-row sz-md">
+        <div class="fs-row-label">Structure interne</div>
+        <div class="fs-row-field"><textarea id="forme-structure" placeholder="ABA, rondo, binaire, ternaire, variations, through-composed…"></textarea></div>
+      </div>
+      <div class="fs-row sz-lg">
+        <div class="fs-row-label">Thématique<span class="sublabel">mouvements mélodiques, etc.</span></div>
+        <div class="fs-row-field"><textarea id="forme-thematique" placeholder="Thème principal, motif récurrent, contour mélodique, intervalles caractéristiques…"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05. Rapports texte / musique -->
+  <div class="fs-category">
+    <div class="fs-cat-header">
+      <span class="fs-cat-num">05</span>
+      <span class="fs-cat-name">Rapports texte / musique</span>
+    </div>
+    <div class="fs-cat-body">
+      <div class="fs-row sz-xl">
+        <div class="fs-row-label">Langue, sens, mises en valeur</div>
+        <div class="fs-row-field"><textarea id="texte-musique" placeholder="Langue du texte, adéquation entre musique et sens des paroles, illustrations musicales, word painting, accentuation des mots-clés…"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 06. Repères culturels -->
+  <div class="fs-category">
+    <div class="fs-cat-header">
+      <span class="fs-cat-num">06</span>
+      <span class="fs-cat-name">Repères culturels</span>
+    </div>
+    <div class="fs-cat-body">
+      <div class="fs-row sz-md">
+        <div class="fs-row-label">Destination, genre</div>
+        <div class="fs-row-field"><textarea id="reperes-genre" placeholder="Musique sacrée / profane, concert, scène, film, opéra, jazz, pop…"></textarea></div>
+      </div>
+      <div class="fs-row sz-lg">
+        <div class="fs-row-label">Esthétique<span class="sublabel">époque, mouvement musical</span></div>
+        <div class="fs-row-field"><textarea id="reperes-esthetique" placeholder="Baroque, classicisme, romantisme, impressionnisme, modernisme, musique contemporaine, courant jazz…"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Commentaire final -->
+  <div class="fs-comment">
+    <div class="section-header">
+      <span class="icon">✍️</span>
+      <h2>Commentaire d'écoute</h2>
+    </div>
+    <div class="fs-comment-body">
+      <textarea id="fs-commentaire" placeholder="Rédigez ici votre commentaire d'écoute en mobilisant les éléments d'analyse que vous avez identifiés…"></textarea>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-reset" onclick="resetFS()">↺&nbsp; Réinitialiser les réponses</button>
+    <button class="btn btn-pdf" id="btnFS" onclick="ouvrirPreviewFS()">👁&nbsp; Prévisualiser &amp; Télécharger le PDF</button>
+  </div>
+  <p class="notice">Une prévisualisation s'ouvre — vérifiez votre travail, puis cliquez sur le bouton doré pour télécharger le PDF.</p>
+
+</div><!-- /container -->
+</div><!-- /tab-fiche-simple -->
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     ONGLET 2 — ANALYSE AUDITIVE
+═══════════════════════════════════════════════════════════════════ -->
+<div id="tab-fiche-detaillee" class="tab-panel">
+<div class="container">
+
+  <!-- Identité -->
+  <div class="identity-card">
+    <div class="field-group"><label>Nom</label><input type="text" id="aa-nom" placeholder="Dupont"></div>
+    <div class="field-group"><label>Prénom</label><input type="text" id="aa-prenom" placeholder="Marie"></div>
+    <div class="field-group"><label>Classe</label><input type="text" id="aa-classe" placeholder="Terminale A"></div>
+  </div>
+  <div class="oeuvre-row">
+    <div class="field-group"><label>Titre de l'œuvre</label><input type="text" id="aa-oeuvre" placeholder="Titre de l'œuvre écoutée"></div>
+    <div class="field-group"><label>Compositeur / Interprète</label><input type="text" id="aa-compositeur" placeholder="Nom du compositeur ou interprète"></div>
+  </div>
+
+  <!-- CONTEXTUALISATION -->
+  <div class="section">
+    <div class="section-header"><span class="icon">🌍</span><h2>Contextualisation</h2></div>
+    <div class="section-body">
+      <div class="subsection">
+        <div class="subsection-title">Époque / Style</div>
+        <div class="checks" data-group="epoque-style">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Moyen-Âge</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Renaissance</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Baroque</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Classique</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Romantique</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Moderne</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Contemporaine</span></label>
+        </div>
+        <div class="sub-label">Musiques actuelles</div>
+        <div class="checks" data-group="musiques-actuelles">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Rock</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Jazz</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Blues</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Rap</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Musique électronique</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Musique du monde</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Reggae</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Pop</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Variété</span></label>
+          <div class="inline-group"><span>Autres :</span><input type="text" class="inline-input" id="epoque-autres" placeholder="…"></div>
+        </div>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">Catégories et genres musicaux</div>
+        <div class="checks" data-group="categories-genres">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Savant</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Populaire</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Sacré</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Profane</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Instrumental</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Vocal</span></label>
+        </div>
+        <div class="indent">
+          <div class="sub-label">Musique vocale</div>
+          <div class="checks" data-group="musique-vocale">
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">A cappella</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Chanson</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Chanson polyphonique</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Lied / Mélodie</span></label>
+          </div>
+          <div class="sub-label">Musique pour instrument seul</div>
+          <div class="checks" data-group="instr-seul">
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Prélude</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Fugue</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Musique de danse</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Valse</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Étude</span></label>
+            <div class="inline-group"><span>Autres :</span><input type="text" class="inline-input" id="instrsolo-autres" placeholder="…"></div>
+          </div>
+          <div class="sub-label">Musique de chambre</div>
+          <div class="checks" data-group="chambre">
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Sonate</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Trio</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Quatuor</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Quintette</span></label>
+            <div class="inline-group"><span>Autres :</span><input type="text" class="inline-input" id="chambre-autres" placeholder="…"></div>
+          </div>
+          <div class="sub-label">Musique symphonique</div>
+          <div class="checks" data-group="symphonique">
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Symphonie</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Concerto</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Poème symphonique</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ouverture</span></label>
+            <div class="inline-group"><span>Autres :</span><input type="text" class="inline-input" id="symph-autres" placeholder="…"></div>
+          </div>
+          <div class="sub-label">Musique sacrée</div>
+          <div class="checks" data-group="sacree">
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Messe</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Oratorio</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Requiem</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Cantate</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Choral</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Motet</span></label>
+          </div>
+          <div class="sub-label">Musique de scène (profane)</div>
+          <div class="checks" data-group="scene">
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Opéra</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Opérette</span></label>
+            <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ballet</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYSE MUSICALE -->
+  <div class="section">
+    <div class="section-header"><span class="icon">🎼</span><h2>Analyse Musicale</h2></div>
+    <div class="section-body">
+      <div class="caractere-wrap">
+        <label>Caractère général</label>
+        <input type="text" id="aa-caractere" placeholder="Ex : majestueux, mélancolique, vif, lyrique, solennel…">
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">Timbre et couleur</div>
+        <div class="checks" data-group="timbre">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Orch. symphonique</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Orch. Baroque</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Fanfare</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Jazz Band</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Groupe de rock</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Voix solistes</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Chœur mixte</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Chœur d'hommes</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Chœur de femmes</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Chœur d'enfants</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ensemble varié</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Orch. non occidental</span></label>
+        </div>
+        <div class="sub-label">Familles d'instruments</div>
+        <div class="checks" data-group="familles">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Cordes frottées</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Cordes pincées</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Bois</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Cuivres</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Percussions</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Voix solistes</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Chœur</span></label>
+        </div>
+        <div class="sub-label">Instruments dominants</div>
+        <div class="checks" data-group="instr-dom">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Violons</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Violoncelle</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Clavecin</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Luth</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Flûtes</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Hautbois</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Clarinette</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Trompettes</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Cor</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Piano</span></label>
+          <div class="inline-group"><span>Autres :</span><input type="text" class="inline-input" id="instr-dom-autres" placeholder="…"></div>
+        </div>
+        <div class="sub-label">Modes de jeu repérés</div>
+        <div class="checks" data-group="modes-jeu">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Arco</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Pizzicato</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Glissando</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Tremolo</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Sourdine</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Sul Ponticello</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Bend</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Harmonique</span></label>
+          <div class="inline-group"><span>Autres :</span><input type="text" class="inline-input" id="modes-jeu-autres" placeholder="…"></div>
+        </div>
+        <div class="sub-label">Voix — registre &amp; tessiture</div>
+        <div class="checks" data-group="voix-registre">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Grave</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Medium</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Aigu</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Soprano</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Mezzo-Sop.</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Alto</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ténor</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Baryton</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Basse</span></label>
+          <div class="inline-group"><span>Autres :</span><input type="text" class="inline-input" id="voix-reg-autres" placeholder="…"></div>
+        </div>
+        <div class="sub-label">Voix — type</div>
+        <div class="checks" data-group="voix-type">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Voix chantée</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Voix parlée</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Voix cassée</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Scream</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Voix lyrique</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Voix lisse</span></label>
+          <div class="inline-group"><span>Autres :</span><input type="text" class="inline-input" id="voix-type-autres" placeholder="…"></div>
+        </div>
+        <div class="sub-label">Voix — technique</div>
+        <div class="checks" data-group="voix-technique">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Vibrato (large/serré)</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Vibes</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Vocalises</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Syllabisme</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Figuralisme</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ports de voix</span></label>
+          <div class="inline-group"><span>Autres :</span><input type="text" class="inline-input" id="voix-tech-autres" placeholder="…"></div>
+        </div>
+        <div class="sub-label">Écriture</div>
+        <div class="checks" data-group="ecriture">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Harmonique</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Contrepoint</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Canon</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Homorythmie</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Homosyllabisme</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Motifs</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Mélodie accompagnée</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Thème simple</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Thème complexe (long)</span></label>
+          <div class="inline-group"><span>Autres :</span><input type="text" class="inline-input" id="ecriture-autres" placeholder="…"></div>
+        </div>
+        <div class="sub-label">Langage</div>
+        <div class="checks" data-group="langage">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Tonal (Maj/min)</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Atonal</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Polytonal</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Modes anciens</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Modes extra-occ. : Asie</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Orient</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Latino</span></label>
+          <div class="inline-group"><span>Autre :</span><input type="text" class="inline-input" id="langage-autres" placeholder="…"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STRUCTURE ET FORME -->
+  <div class="section">
+    <div class="section-header"><span class="icon">🏗️</span><h2>Structure et Forme</h2></div>
+    <div class="section-body">
+      <div class="subsection">
+        <div class="subsection-title">Forme générale</div>
+        <div class="checks" data-group="forme-generale">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Binaire</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Aria da capo</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Lied</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Rondo</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Fugue (canon)</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Thème et variations</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Sonate</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Scherzo</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Libre</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Narrative</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ouverture à l'italienne</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ouverture à la française</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Prélude</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Rhapsodie</span></label>
+          <div class="inline-group"><span>Autre :</span><input type="text" class="inline-input" id="forme-autres" placeholder="…"></div>
+        </div>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">Éléments structurels</div>
+        <div class="checks" data-group="elements-structurels">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Introduction</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Coda</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Exposition</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Thème</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Développement</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Variation</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Improvisation</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Reprises</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Pont</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Transition</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Couplet</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Refrain</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Questions / Réponses</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPS MUSICAL -->
+  <div class="section">
+    <div class="section-header"><span class="icon">🕐</span><h2>Temps Musical</h2></div>
+    <div class="section-body">
+      <div class="subsection">
+        <div class="subsection-title">Tempo</div>
+        <div class="checks" data-group="tempo">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Largo</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Lento</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Andante</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Moderato</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Allegro</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Presto</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Variations de tempo</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Continuité</span></label>
+        </div>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">Mesure</div>
+        <div class="checks" data-group="mesure">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">2 temps</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">3 temps</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">4 temps</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Mesures irrégulières</span></label>
+          <div class="inline-group"><span>Autres :</span><input type="text" class="inline-input" id="mesure-autres" placeholder="…"></div>
+        </div>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">Pulsation</div>
+        <div class="checks" data-group="pulsation">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Pulsé</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Non-pulsé (tps. lisse)</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Binaire</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ternaire</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Irrégulière</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Accelerando</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Rallentando</span></label>
+        </div>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">Rythme</div>
+        <div class="checks" data-group="rythme">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Rythmes lents</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Rythmes rapides</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Rythmes variés</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Polyrythmie</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Homorythmie</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ostinato</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NUANCES -->
+  <div class="section">
+    <div class="section-header"><span class="icon">🔊</span><h2>Nuances</h2></div>
+    <div class="section-body">
+      <div class="checks" data-group="nuances">
+        <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Pianissimo</span></label>
+        <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Piano</span></label>
+        <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Mezzo-piano</span></label>
+        <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Mezzo-forte</span></label>
+        <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Forte</span></label>
+        <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Fortissimo</span></label>
+        <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Crescendo</span></label>
+        <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Decrescendo</span></label>
+        <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Accents</span></label>
+        <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Contrastes</span></label>
+        <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ruptures</span></label>
+        <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Continuité</span></label>
+        <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Masse sonore importante</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESPACE SONORE -->
+  <div class="section">
+    <div class="section-header"><span class="icon">🎵</span><h2>Espace Sonore</h2></div>
+    <div class="section-body">
+      <div class="subsection">
+        <div class="subsection-title">Ambitus / Registres</div>
+        <div class="checks" data-group="ambitus">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ambitus large</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ambitus réduit</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Registre grave</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Registre medium</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Registre aigu</span></label>
+        </div>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">Écriture mélodique</div>
+        <div class="checks" data-group="melodique">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Plutôt conjoint</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Plutôt disjoint</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ascendant</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Descendant</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Carrure régulière</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ornementation</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Arpèges</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Étendue réduite</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Étendue large</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Motifs</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Antécédent / Conséquent</span></label>
+        </div>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">Accompagnement</div>
+        <div class="checks" data-group="accompagnement">
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Accords</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Arpèges</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Basse</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Walking-bass</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Basse continue</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Imitation</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Contrechant</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ornements</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Accumulation</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Continu</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Intermittent</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Responsorial</span></label>
+          <label class="check-item"><input type="checkbox" class="cb"><span class="box"></span><span class="label">Ostinato (mélodico-rythmique)</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMENTAIRE -->
+  <div class="commentaire-wrap">
+    <div class="section-header"><span class="icon">✍️</span><h2>Commentaire d'Écoute</h2></div>
+    <div class="commentaire-body">
+      <textarea id="aa-commentaire" placeholder="Rédigez ici votre commentaire d'écoute…"></textarea>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-reset" onclick="resetAA()">↺&nbsp; Réinitialiser les coches</button>
+    <button class="btn btn-pdf" id="btnAA" onclick="ouvrirPreviewAA()">👁&nbsp; Prévisualiser &amp; Télécharger le PDF</button>
+  </div>
+  <p class="notice">Une prévisualisation s'ouvre — vérifiez votre travail, puis cliquez sur le bouton doré pour télécharger le PDF.</p>
+
+</div><!-- /container -->
+</div><!-- /tab-fiche-detaillee -->
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════════════ -->
+<script>
+// ── Onglets ─────────────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── Utilitaires ─────────────────────────────────────────────────
+function getVal(id) { return (document.getElementById(id) || {}).value || ''; }
+
+function collectGroup(g, aid) {
+  const el = document.querySelector('[data-group="' + g + '"]');
+  const v = [];
+  if (el) el.querySelectorAll('input.cb:checked').forEach(cb =>
+    v.push(cb.closest('.check-item').querySelector('.label').textContent.trim()));
+  if (aid) { const a = getVal(aid); if (a) v.push('Autres : ' + a); }
+  return v;
+}
+
+function esc(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Reset Fiche Simple ───────────────────────────────────────────
+function resetFS() {
+  const ids = ['couleur-formation','couleur-caractere','couleur-nuances','couleur-modes',
+               'espace-ecriture','espace-registres','espace-mode',
+               'temps-pulsation','temps-tempo','temps-rythme',
+               'forme-structure','forme-thematique','texte-musique',
+               'reperes-genre','reperes-esthetique','fs-commentaire'];
+  if (confirm('Voulez-vous effacer toutes les réponses de la fiche simple ?')) {
+    ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  }
+}
+
+// ── Reset Fiche Détaillée ────────────────────────────────────────
+function resetAA() {
+  document.querySelectorAll('#tab-fiche-detaillee .cb').forEach(cb => cb.checked = false);
+  document.querySelectorAll('#tab-fiche-detaillee .inline-input').forEach(i => i.value = '');
+  document.getElementById('aa-caractere').value = '';
+  if (confirm("Voulez-vous aussi effacer le commentaire d'écoute ?"))
+    document.getElementById('aa-commentaire').value = '';
+}
+
+// ── Données PDF - Fiche Simple ───────────────────────────────────
+function buildDataFS() {
+  return {
+    nom:         getVal('fs-nom'),
+    prenom:      getVal('fs-prenom'),
+    classe:      getVal('fs-classe'),
+    titre:       getVal('fs-titre'),
+    compositeur: getVal('fs-compositeur'),
+    commentaire: getVal('fs-commentaire'),
+    sections: [
+      { num:'01', name:'Couleur', rows:[
+        { label:'Formation (effectif)', val: getVal('couleur-formation') },
+        { label:'Caractère',            val: getVal('couleur-caractere') },
+        { label:'Nuances',              val: getVal('couleur-nuances')   },
+        { label:'Modes de jeu',         val: getVal('couleur-modes')     },
+      ]},
+      { num:'02', name:'Espace', rows:[
+        { label:'Écriture',               val: getVal('espace-ecriture')  },
+        { label:'Registres, plans sonores', val: getVal('espace-registres')},
+        { label:'Mode, échelle',           val: getVal('espace-mode')      },
+      ]},
+      { num:'03', name:'Temps', rows:[
+        { label:'Pulsation',                   val: getVal('temps-pulsation') },
+        { label:'Tempo',                       val: getVal('temps-tempo')     },
+        { label:'Rythme(s) caractéristique(s)',val: getVal('temps-rythme')   },
+      ]},
+      { num:'04', name:'Forme', rows:[
+        { label:'Structure interne', val: getVal('forme-structure')   },
+        { label:'Thématique',        val: getVal('forme-thematique')  },
+      ]},
+      { num:'05', name:'Rapports texte / musique', rows:[
+        { label:'Langue, sens, mises en valeur', val: getVal('texte-musique') },
+      ]},
+      { num:'06', name:'Repères culturels', rows:[
+        { label:'Destination, genre', val: getVal('reperes-genre')      },
+        { label:'Esthétique',         val: getVal('reperes-esthetique') },
+      ]},
+    ]
+  };
+}
+
+// ── Données PDF - Analyse Auditive ───────────────────────────────
+function buildDataAA() {
+  const car = getVal('aa-caractere');
+  return {
+    nom:         getVal('aa-nom'),
+    prenom:      getVal('aa-prenom'),
+    classe:      getVal('aa-classe'),
+    oeuvre:      getVal('aa-oeuvre'),
+    compositeur: getVal('aa-compositeur'),
+    commentaire: getVal('aa-commentaire'),
+    sections: [
+      { s:'Contextualisation', g:[
+        { l:'Époque / Style',              v: collectGroup('epoque-style','epoque-autres') },
+        { l:'Musiques actuelles',          v: collectGroup('musiques-actuelles') },
+        { l:'Catégories et genres',        v: collectGroup('categories-genres') },
+        { l:'Musique vocale',              v: collectGroup('musique-vocale') },
+        { l:'Musique pour instrument seul',v: collectGroup('instr-seul','instrsolo-autres') },
+        { l:'Musique de chambre',          v: collectGroup('chambre','chambre-autres') },
+        { l:'Musique symphonique',         v: collectGroup('symphonique','symph-autres') },
+        { l:'Musique sacrée',              v: collectGroup('sacree') },
+        { l:'Musique de scène (profane)',  v: collectGroup('scene') },
+      ]},
+      { s:'Analyse Musicale', g:[
+        { l:'Caractère',           v: car ? [car] : [] },
+        { l:'Timbre et couleur',   v: collectGroup('timbre') },
+        { l:"Familles d'instruments", v: collectGroup('familles') },
+        { l:'Instruments dominants',  v: collectGroup('instr-dom','instr-dom-autres') },
+        { l:'Modes de jeu repérés',   v: collectGroup('modes-jeu','modes-jeu-autres') },
+        { l:'Voix - registre / tessiture', v: collectGroup('voix-registre','voix-reg-autres') },
+        { l:'Voix - type',         v: collectGroup('voix-type','voix-type-autres') },
+        { l:'Voix - technique',    v: collectGroup('voix-technique','voix-tech-autres') },
+        { l:'Écriture',            v: collectGroup('ecriture','ecriture-autres') },
+        { l:'Langage',             v: collectGroup('langage','langage-autres') },
+      ]},
+      { s:'Structure et Forme', g:[
+        { l:'Forme générale',       v: collectGroup('forme-generale','forme-autres') },
+        { l:'Éléments structurels', v: collectGroup('elements-structurels') },
+      ]},
+      { s:'Temps Musical', g:[
+        { l:'Tempo',     v: collectGroup('tempo') },
+        { l:'Mesure',    v: collectGroup('mesure','mesure-autres') },
+        { l:'Pulsation', v: collectGroup('pulsation') },
+        { l:'Rythme',    v: collectGroup('rythme') },
+      ]},
+      { s:'Nuances', g:[{ l:null, v: collectGroup('nuances') }]},
+      { s:'Espace Sonore', g:[
+        { l:'Ambitus / Registres', v: collectGroup('ambitus') },
+        { l:'Écriture mélodique',  v: collectGroup('melodique') },
+        { l:'Accompagnement',      v: collectGroup('accompagnement') },
+      ]},
+    ]
+  };
+}
+
+// On utilise directement une fonction inline pour chaque PDF
+function renderPDF_FS(d) {
+  const W=595,H=842,ML=40,MR=40,MT=40,CW=515;
+  const objects=[], ps=[];
+  let cmds=[], cy=H-MT;
+
+  const f=n=>n.toFixed(3);
+  const sF=(r,g,b)=>cmds.push(`${f(r)} ${f(g)} ${f(b)} rg`);
+  const sS=(r,g,b)=>cmds.push(`${f(r)} ${f(g)} ${f(b)} RG`);
+  const rc=(x,y,w,h)=>cmds.push(`${f(x)} ${f(y)} ${f(w)} ${f(h)} re f`);
+  const rs=(x,y,w,h)=>cmds.push(`${f(x)} ${f(y)} ${f(w)} ${f(h)} re S`);
+  const lw=(w)=>cmds.push(`${f(w)} w`);
+  const tx=(s,x,y,sz,font)=>{
+    let safe='';
+    for(let i=0;i<s.length;i++){
+      const c=s.charCodeAt(i);
+      if(c===40||c===41||c===92) safe+='\\'+s[i];
+      else if(c>127) safe+='\\'+c.toString(8).padStart(3,'0');
+      else safe+=s[i];
+    }
+    cmds.push(`BT /${font} ${sz} Tf ${f(x)} ${f(y)} Td (${safe}) Tj ET`);
+  };
+  function addObj(c){objects.push(c);return objects.length;}
+  function commit(){const s=cmds.join('\n');const i=addObj(`<< /Length ${s.length} >>\nstream\n${s}\nendstream`);ps.push(i);cmds=[];}
+  function chk(n){
+    if(cy-n<50){
+      commit(); cy=H-MT;
+      sF(0.102,0.102,0.18); rc(ML,H-MT-12,CW,12);
+      sF(1,1,1); tx('(suite)',ML+4,H-MT-7.5,7,'Helvetica-Oblique');
+      sF(0,0,0); cy=H-MT-20;
+    }
+  }
+
+  // Bandeau titre
+  sF(0.102,0.102,0.18); rc(ML,cy-30,CW,30);
+  sF(0.788,0.659,0.298); tx("Commentaire d'ecoute",ML+CW/2-62,cy-12,14,'Times-Roman');
+  sF(0.8,0.8,0.8); tx('Education musicale',ML+CW/2-36,cy-22,8,'Helvetica');
+  cy-=38;
+
+  // Identité
+  sF(0.97,0.96,0.94); rc(ML,cy-26,CW,26);
+  sS(0.83,0.78,0.71); lw(0.3); rs(ML,cy-26,CW,26);
+  sF(0.23,0.455,0.44);
+  tx('NOM',ML+4,cy-9,6.5,'Helvetica-Bold');
+  tx('PRENOM',ML+CW/3+4,cy-9,6.5,'Helvetica-Bold');
+  tx('CLASSE',ML+2*CW/3+4,cy-9,6.5,'Helvetica-Bold');
+  sF(0.1,0.1,0.18);
+  tx(d.nom||'-',ML+4,cy-19,10,'Helvetica');
+  tx(d.prenom||'-',ML+CW/3+4,cy-19,10,'Helvetica');
+  tx(d.classe||'-',ML+2*CW/3+4,cy-19,10,'Helvetica');
+  cy-=34;
+
+  sF(0.98,0.92,0.91); rc(ML,cy-26,CW,26);
+  sS(0.722,0.416,0.369); rs(ML,cy-26,CW,26);
+  sF(0.722,0.416,0.369);
+  tx('OEUVRE / TITRE',ML+4,cy-9,6.5,'Helvetica-Bold');
+  tx('COMPOSITEUR / ARTISTE',ML+CW/2+4,cy-9,6.5,'Helvetica-Bold');
+  sF(0.1,0.1,0.18);
+  tx((d.titre||'-').substring(0,44),ML+4,cy-19,10,'Helvetica');
+  tx((d.compositeur||'-').substring(0,36),ML+CW/2+4,cy-19,10,'Helvetica');
+  cy-=34;
+
+  // Sections avec lignes
+  const LCOL=100; // largeur colonne label
+  const LABEL_MAX_CHARS=14; // ~chars par ligne dans LCOL à 6.5pt
+  const LABEL_LH=7.5; // interligne label
+
+  // Wraps a label string into lines fitting LCOL
+  function wrapLabel(lbl) {
+    const words = lbl.split(' ');
+    const lines = [];
+    let cur = '';
+    words.forEach(w => {
+      const test = cur ? cur + ' ' + w : w;
+      if (test.length > LABEL_MAX_CHARS && cur) { lines.push(cur); cur = w; }
+      else cur = test;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+
+  d.sections.forEach(({num,name,rows})=>{
+    chk(18);
+    sF(0.102,0.102,0.18); rc(ML,cy-13,CW,13);
+    sF(0.5,0.5,0.5); tx(num,ML+4,cy-8.5,8,'Helvetica');
+    sF(1,1,1); tx(name,ML+16,cy-8.5,9,'Helvetica-Bold');
+    cy-=17;
+
+    rows.forEach(({label,val})=>{
+      const content=val||'';
+      const labelLines = wrapLabel(label.toUpperCase());
+      const nLabelLines = labelLines.length;
+
+      // hauteur du contenu (colonne droite)
+      const maxC=Math.floor((CW-LCOL-8)/5.2);
+      const words=content?content.split(' '):['-'];
+      let cLines=1, cLine='';
+      words.forEach(w=>{
+        const test=cLine?cLine+' '+w:w;
+        if(test.length>maxC&&cLine){cLines++;cLine=w;}else cLine=test;
+      });
+
+      // hauteur de la ligne = max(lignes label, lignes contenu) avec padding
+      const rowH = Math.max(nLabelLines * LABEL_LH + 8, cLines * 5.5 + 8, 16);
+      chk(rowH+1);
+
+      // Fond + bordures
+      sF(0.955,0.945,0.93); rc(ML,cy-rowH,LCOL,rowH);
+      sS(0.84,0.80,0.73); lw(0.25); rs(ML,cy-rowH,CW,rowH);
+      cmds.push(`${f(ML+LCOL)} ${f(cy-rowH)} m ${f(ML+LCOL)} ${f(cy)} l S`);
+
+      // Label centré verticalement
+      const labelBlockH = nLabelLines * LABEL_LH;
+      const labelStartY = cy - (rowH - labelBlockH) / 2 - LABEL_LH * 0.15;
+      sF(0.42,0.40,0.37);
+      labelLines.forEach((lp,li)=>tx(lp, ML+3, labelStartY - li*LABEL_LH, 6.5, 'Helvetica-Bold'));
+
+      // Contenu
+      sF(content?0.1:0.68, content?0.1:0.68, content?0.18:0.68);
+      let lineY=cy-5.5; cLine='';
+      words.forEach(w=>{
+        const test=cLine?cLine+' '+w:w;
+        if(test.length>maxC&&cLine){
+          tx(cLine,ML+LCOL+4,lineY,8.5,'Helvetica');
+          lineY-=5.5; cLine=w;
+        } else cLine=test;
+      });
+      if(cLine) tx(cLine,ML+LCOL+4,lineY,8.5,'Helvetica');
+      cy-=rowH+0.5;
+    });
+    cy-=4;
+  });
+
+  // Commentaire
+  chk(24);
+  sF(0.227,0.455,0.439); rc(ML,cy-13,CW,13);
+  sF(1,1,1); tx("Commentaire d'ecoute",ML+4,cy-8.5,9,'Helvetica-Bold');
+  cy-=17;
+  const comLines=d.commentaire?d.commentaire.split('\n'):[];
+  const comH=Math.max(comLines.reduce((a,l)=>a+Math.ceil(l.length/90+1),0)*6+10,30);
+  chk(comH);
+  sF(0.98,0.97,0.96); rc(ML,cy-comH,CW,comH);
+  sS(0.816,0.902,0.902); rs(ML,cy-comH,CW,comH);
+  if(d.commentaire){
+    sF(0.1,0.1,0.18);
+    let ty=cy-6,maxC2=Math.floor((CW-10)/5.5);
+    outer: for(const para of d.commentaire.split('\n')){
+      const words2=para.split(' ');
+      let line2='';
+      for(const w of words2){
+        const test=line2?line2+' '+w:w;
+        if(test.length>maxC2&&line2){
+          if(ty<55)break outer;
+          tx(line2,ML+5,ty,10,'Helvetica'); ty-=6; line2=w;
+        } else line2=test;
+      }
+      if(line2&&ty>=55){tx(line2,ML+5,ty,10,'Helvetica');ty-=6;}
+      ty-=3;
+    }
+  }
+
+  commit();
+
+  // Assemblage
+  const fp=objects.length+1, po=fp+ps.length, co=po+1;
+  const enc='/Encoding /WinAnsiEncoding';
+  const fr=`/Helvetica << /Type /Font /Subtype /Type1 /BaseFont /Helvetica ${enc} >> `+
+           `/Helvetica-Bold << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold ${enc} >> `+
+           `/Helvetica-Oblique << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique ${enc} >> `+
+           `/Times-Roman << /Type /Font /Subtype /Type1 /BaseFont /Times-Roman ${enc} >>`;
+  ps.forEach((ci)=>addObj(`<< /Type /Page /Parent ${po} 0 R /MediaBox [0 0 ${W} ${H}] /Contents ${ci} 0 R /Resources << /Font << ${fr} >> >> >>`));
+  addObj(`<< /Type /Pages /Kids [${ps.map((_,i)=>`${fp+i} 0 R`).join(' ')}] /Count ${ps.length} >>`);
+  addObj(`<< /Type /Catalog /Pages ${po} 0 R >>`);
+  let out='%PDF-1.4\n'; const offs=[];
+  objects.forEach((o,i)=>{offs.push(out.length);out+=`${i+1} 0 obj\n${o}\nendobj\n`;});
+  const xr=out.length;
+  out+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
+  offs.forEach(o=>out+=String(o).padStart(10,'0')+' 00000 n \n');
+  out+=`trailer\n<< /Size ${objects.length+1} /Root ${co} 0 R >>\nstartxref\n${xr}\n%%EOF`;
+  return out;
+}
+
+// ── Rendu PDF Analyse Auditive (identique à avant) ───────────────
+function renderPDF_AA(d) {
+  const W=595,H=842,ML=40,MR=40,MT=40,CW=515;
+  const objects=[],ps=[];
+  let cmds=[],cy=H-MT;
+  const f=n=>n.toFixed(3);
+  const sF=(r,g,b)=>cmds.push(`${f(r)} ${f(g)} ${f(b)} rg`);
+  const sS=(r,g,b)=>cmds.push(`${f(r)} ${f(g)} ${f(b)} RG`);
+  const rc=(x,y,w,h)=>cmds.push(`${f(x)} ${f(y)} ${f(w)} ${f(h)} re f`);
+  const rs=(x,y,w,h)=>cmds.push(`${f(x)} ${f(y)} ${f(w)} ${f(h)} re S`);
+  const lw=(w)=>cmds.push(`${f(w)} w`);
+  const tx=(s,x,y,sz,font)=>{
+    let safe='';
+    for(let i=0;i<s.length;i++){
+      const c=s.charCodeAt(i);
+      if(c===40||c===41||c===92) safe+='\\'+s[i];
+      else if(c>127) safe+='\\'+c.toString(8).padStart(3,'0');
+      else safe+=s[i];
+    }
+    cmds.push(`BT /${font} ${sz} Tf ${f(x)} ${f(y)} Td (${safe}) Tj ET`);
+  };
+  function addObj(c){objects.push(c);return objects.length;}
+  function commit(){const s=cmds.join('\n');const i=addObj(`<< /Length ${s.length} >>\nstream\n${s}\nendstream`);ps.push(i);cmds=[];}
+  function chk(n){
+    if(cy-n<50){
+      commit();cy=H-MT;
+      sF(0.102,0.102,0.18);rc(ML,H-MT-12,CW,12);
+      sF(1,1,1);tx('(suite)',ML+4,H-MT-7.5,7,'Helvetica-Oblique');
+      sF(0,0,0);cy=H-MT-20;
+    }
+  }
+
+  // Titre
+  sF(0.102,0.102,0.18);rc(ML,cy-30,CW,30);
+  sF(0.788,0.659,0.298);tx("Analyse Auditive",ML+CW/2-56,cy-12,14,'Times-Roman');
+  sF(0.8,0.8,0.8);tx("Commentaire d'ecoute",ML+CW/2-52,cy-22,8,'Helvetica');
+  cy-=38;
+  // Identité
+  sF(0.97,0.96,0.94);rc(ML,cy-26,CW,26);
+  sS(0.83,0.78,0.71);lw(0.3);rs(ML,cy-26,CW,26);
+  sF(0.23,0.455,0.44);
+  tx('NOM',ML+4,cy-9,6.5,'Helvetica-Bold');
+  tx('PRENOM',ML+CW/3+4,cy-9,6.5,'Helvetica-Bold');
+  tx('CLASSE',ML+2*CW/3+4,cy-9,6.5,'Helvetica-Bold');
+  sF(0.1,0.1,0.18);
+  tx(d.nom||'-',ML+4,cy-19,10,'Helvetica');
+  tx(d.prenom||'-',ML+CW/3+4,cy-19,10,'Helvetica');
+  tx(d.classe||'-',ML+2*CW/3+4,cy-19,10,'Helvetica');
+  cy-=34;
+  sF(0.98,0.92,0.91);rc(ML,cy-26,CW,26);
+  sS(0.722,0.416,0.369);rs(ML,cy-26,CW,26);
+  sF(0.722,0.416,0.369);
+  tx('OEUVRE',ML+4,cy-9,6.5,'Helvetica-Bold');
+  tx('COMPOSITEUR / INTERPRETE',ML+CW/2+4,cy-9,6.5,'Helvetica-Bold');
+  sF(0.1,0.1,0.18);
+  tx((d.oeuvre||'-').substring(0,44),ML+4,cy-19,10,'Helvetica');
+  tx((d.compositeur||'-').substring(0,36),ML+CW/2+4,cy-19,10,'Helvetica');
+  cy-=34;
+
+  // Sections cases cochées
+  d.sections.forEach(({s,g})=>{
+    chk(18);
+    sF(0.102,0.102,0.18);rc(ML,cy-13,CW,13);
+    sF(1,1,1);tx(s.toUpperCase(),ML+4,cy-8.5,8,'Helvetica-Bold');
+    cy-=17;
+    g.forEach(({l,v})=>{
+      chk(14);
+      if(l){sF(0.722,0.416,0.369);tx(l,ML+3,cy-8,7,'Helvetica-Bold');cy-=11;}
+      if(!v.length){
+        chk(12);sF(0.68,0.68,0.68);tx('-',ML+3,cy-7,8,'Helvetica-Oblique');cy-=12;
+      } else {
+        let tx2=ML+3,ty=cy-3;const tagH=12,tp=5;
+        v.forEach(tag=>{
+          const tw=tag.length*5+tp*2;
+          if(tx2+tw>W-MR){tx2=ML+3;ty-=tagH+3;chk(tagH+3);}
+          sF(0.878,0.941,0.933);cmds.push(`${f(tx2)} ${f(ty-tagH+2)} ${f(tw)} ${f(tagH)} re f`);
+          sS(0.227,0.455,0.439);lw(0.4);cmds.push(`${f(tx2)} ${f(ty-tagH+2)} ${f(tw)} ${f(tagH)} re S`);
+          sF(0.1,0.1,0.18);tx(tag,tx2+tp,ty-tagH+6,7.5,'Helvetica');
+          tx2+=tw+4;
+        });
+        cy=ty-tagH-4;
+      }
+      cy-=2;
+    });
+    cy-=4;
+  });
+
+  // Page 2 - Commentaire (nouvelle page, hauteur dynamique)
+  commit(); cy=H-MT;
+  sF(0.227,0.455,0.439);rc(ML,cy-28,CW,28);
+  sF(1,1,1);tx("Commentaire d'Ecoute",ML+CW/2-68,cy-18,14,'Times-Roman');
+  cy-=38;
+  const recap=[d.prenom,d.nom].filter(Boolean).join(' ')+(d.classe?' - '+d.classe:'')+(d.oeuvre?' - '+d.oeuvre:'');
+  sF(0.5,0.5,0.5);tx(recap.substring(0,90),ML+CW/2-recap.length*2.5,cy-8,8,'Helvetica');
+  cy-=18;
+
+  // Calcul de la hauteur réelle du commentaire
+  const mg=8, lh=6, maxC=Math.floor((CW-mg*2)/5.5);
+  let comLineCount=0;
+  if(d.commentaire){
+    for(const para of d.commentaire.split('\n')){
+      const words=para.split(' ');let line='';
+      for(const w of words){
+        const test=line?line+' '+w:w;
+        if(test.length>maxC&&line){comLineCount++;line=w;}
+        else line=test;
+      }
+      comLineCount++; // dernière ligne du paragraphe
+      comLineCount+=0.6; // espace inter-paragraphe
+    }
+  } else { comLineCount=2; }
+  const bH=Math.max(comLineCount*lh*1.8+mg*2, 40);
+
+  sF(0.98,0.97,0.96);rc(ML,cy-bH,CW,bH);
+  sS(0.816,0.902,0.902);lw(0.5);rs(ML,cy-bH,CW,bH);
+  if(d.commentaire){
+    sF(0.1,0.1,0.18);
+    const lineH=lh*1.8;let ty2=cy-mg-2;
+    for(const para of d.commentaire.split('\n')){
+      const words=para.split(' ');let line2='';
+      for(const w of words){
+        const test=line2?line2+' '+w:w;
+        if(test.length>maxC&&line2){
+          if(ty2<cy-bH+4)break;
+          tx(line2,ML+mg,ty2,10,'Helvetica');ty2-=lineH;line2=w;
+        }else line2=test;
+      }
+      if(line2&&ty2>=cy-bH+4){tx(line2,ML+mg,ty2,10,'Helvetica');ty2-=lineH;}
+      ty2-=lh*0.6;
+    }
+  }else{
+    sF(0.7,0.7,0.7);tx('Aucun commentaire redige.',ML+CW/2-60,cy-bH/2,10,'Helvetica-Oblique');
+  }
+  commit();
+
+  const fp=objects.length+1,po=fp+ps.length,co=po+1;
+  const enc='/Encoding /WinAnsiEncoding';
+  const fr=`/Helvetica << /Type /Font /Subtype /Type1 /BaseFont /Helvetica ${enc} >> `+
+           `/Helvetica-Bold << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold ${enc} >> `+
+           `/Helvetica-Oblique << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique ${enc} >> `+
+           `/Times-Roman << /Type /Font /Subtype /Type1 /BaseFont /Times-Roman ${enc} >>`;
+  ps.forEach((ci)=>addObj(`<< /Type /Page /Parent ${po} 0 R /MediaBox [0 0 ${W} ${H}] /Contents ${ci} 0 R /Resources << /Font << ${fr} >> >> >>`));
+  addObj(`<< /Type /Pages /Kids [${ps.map((_,i)=>`${fp+i} 0 R`).join(' ')}] /Count ${ps.length} >>`);
+  addObj(`<< /Type /Catalog /Pages ${po} 0 R >>`);
+  let out='%PDF-1.4\n';const offs=[];
+  objects.forEach((o,i)=>{offs.push(out.length);out+=`${i+1} 0 obj\n${o}\nendobj\n`;});
+  const xr=out.length;
+  out+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
+  offs.forEach(o=>out+=String(o).padStart(10,'0')+' 00000 n \n');
+  out+=`trailer\n<< /Size ${objects.length+1} /Root ${co} 0 R >>\nstartxref\n${xr}\n%%EOF`;
+  return out;
+}
+
+// ── Construction HTML prévisualisation (commun) ──────────────────
+function buildPreviewHtml(title, subtitle, bodyHtml, pdfB64, fname) {
+  const topbarCss = `
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Georgia,serif;background:#f0ede8;color:#1a1a2e;font-size:10pt}
+    .topbar{position:sticky;top:0;z-index:99;background:#1a1a2e;padding:12px 24px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .topbar-info{color:#ccc;font-family:Arial,sans-serif;font-size:12px}
+    .topbar-info strong{color:#fff;font-size:14px;display:block;margin-bottom:2px}
+    .dl-btn{background:#c9a84c;color:#1a1a2e;border:none;border-radius:40px;padding:11px 26px;
+      font-size:14px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;
+      display:flex;align-items:center;gap:8px;white-space:nowrap;
+      box-shadow:0 3px 14px rgba(201,168,76,.5);transition:background .2s}
+    .dl-btn:hover{background:#b8943e}
+    .page{max-width:740px;margin:28px auto;padding:30px 34px;background:#fff;
+      border:1px solid #ddd;border-radius:8px;box-shadow:0 2px 16px rgba(0,0,0,.08)}
+    @media print{
+      @page{size:A4;margin:0}
+      .topbar{display:none!important}
+      body{background:#fff}
+      .page{max-width:100%;margin:0;padding:0;border:none;border-radius:0;box-shadow:none;page-break-after:always}
+      .page:last-child{page-break-after:avoid}
+    }
+  `;
+  const dlScript = `function dl(){
+    var b='${pdfB64}';
+    var bin=atob(b),bytes=new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+    var blob=new Blob([bytes],{type:'application/pdf'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');a.href=url;a.download='${fname}';a.click();
+    setTimeout(function(){URL.revokeObjectURL(url);},8000);
+  }`;
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>${esc(title)}</title>
+    <style>${topbarCss}</style></head><body>
+    <div class="topbar">
+      <div class="topbar-info"><strong>Prévisualisation - ${esc(title)}</strong>${esc(subtitle)}</div>
+      <button class="dl-btn" onclick="dl()">⬇&nbsp; Télécharger le PDF</button>
+    </div>
+    <div class="page">${bodyHtml}</div>
+    <script>${dlScript}<\/script>
+    </body></html>`;
+}
+
+// ── HTML de prévisualisation - Fiche Simple ──────────────────────
+function buildBodyFS(d) {
+  const idCss = `
+    .title-bar{background:#1a1a2e;color:#c9a84c;text-align:center;padding:14px;border-radius:6px;margin-bottom:16px}
+    .title-bar h1{font-size:17pt;font-family:Georgia,serif}
+    .title-bar p{font-size:8pt;color:#ccc;margin-top:3px}
+    .id-grid,.oeuvre-grid{display:flex;flex-wrap:wrap;gap:8px 20px;padding:10px 14px;border-radius:6px;margin-bottom:10px}
+    .id-grid{background:#f8f5f0;border:1px solid #d4c9b5}
+    .oeuvre-grid{background:#faeae8;border:1px solid #c0756a;margin-bottom:18px}
+    .idf .lbl{font-size:6.5pt;text-transform:uppercase;letter-spacing:.1em;font-weight:bold;margin-bottom:3px}
+    .id-grid .idf .lbl{color:#3a7470} .oeuvre-grid .idf .lbl{color:#b86a5e}
+    .idf .val{font-size:11pt}
+    .cat-block{margin-bottom:14px}
+    .cat-hdr{background:#1a1a2e;color:#fff;padding:5px 12px;border-radius:4px;font-size:8.5pt;font-weight:bold;letter-spacing:.07em;margin-bottom:0;display:flex;gap:10px;align-items:baseline}
+    .cat-hdr .num{opacity:.45;font-size:10pt;font-family:Georgia,serif}
+    .row{display:grid;grid-template-columns:195px 1fr;border-bottom:1px solid #e0d8cc}
+    .row:last-child{border-bottom:none}
+    .row-lbl{padding:10px 12px;font-size:10pt;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#6b6760;background:#f2ede4;border-right:1px solid #e0d8cc;font-size:9pt}
+    .row-val{padding:10px 12px;font-size:10.5pt;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+    .empty-val{color:#bbb;font-style:italic}
+    .comment-bar{background:#3a7470;color:#fff;text-align:center;padding:11px;border-radius:5px;margin:14px 0 10px}
+    .comment-bar h2{font-size:13pt;font-family:Georgia,serif}
+    .cbox{background:#faf8f4;border:1px solid #d0e8e7;border-radius:5px;padding:14px;min-height:120px;font-size:11pt;line-height:1.9;white-space:pre-wrap;word-break:break-word}
+  `;
+  let html = `<style>${idCss}</style>
+    <div class="title-bar"><h1>Commentaire d'écoute</h1><p>Éducation musicale</p></div>
+    <div class="id-grid">
+      <div class="idf"><div class="lbl">Nom</div><div class="val">${esc(d.nom)||'-'}</div></div>
+      <div class="idf"><div class="lbl">Prénom</div><div class="val">${esc(d.prenom)||'-'}</div></div>
+      <div class="idf"><div class="lbl">Classe</div><div class="val">${esc(d.classe)||'-'}</div></div>
+    </div>
+    <div class="oeuvre-grid">
+      <div class="idf"><div class="lbl">Œuvre / Titre</div><div class="val">${esc(d.titre)||'-'}</div></div>
+      <div class="idf"><div class="lbl">Compositeur / Artiste</div><div class="val">${esc(d.compositeur)||'-'}</div></div>
+    </div>`;
+
+  d.sections.forEach(({num,name,rows}) => {
+    html += `<div class="cat-block">
+      <div class="cat-hdr"><span class="num">${num}</span><span>${esc(name)}</span></div>
+      <div style="border:1px solid #e0d8cc;border-top:none;border-radius:0 0 6px 6px;overflow:hidden">`;
+    rows.forEach(({label,val}) => {
+      const v = val ? esc(val) : '<span class="empty-val">-</span>';
+      html += `<div class="row"><div class="row-lbl">${esc(label)}</div><div class="row-val">${v}</div></div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  const com = d.commentaire ? esc(d.commentaire) : '<span class="empty-val">Aucun commentaire rédigé.</span>';
+  html += `<div class="comment-bar"><h2>Commentaire d'écoute</h2></div><div class="cbox">${com}</div>`;
+  return html;
+}
+
+// ── HTML de prévisualisation - Analyse Auditive ──────────────────
+function buildBodyAA(d) {
+  const css = `
+    .title-bar{background:#1a1a2e;color:#c9a84c;text-align:center;padding:14px;border-radius:6px;margin-bottom:16px}
+    .title-bar h1{font-size:17pt;font-family:Georgia,serif}
+    .title-bar p{font-size:8pt;color:#ccc;margin-top:3px}
+    .id-grid,.oeuvre-grid{display:flex;flex-wrap:wrap;gap:8px 20px;padding:10px 14px;border-radius:6px;margin-bottom:10px}
+    .id-grid{background:#f8f5f0;border:1px solid #d4c9b5}
+    .oeuvre-grid{background:#faeae8;border:1px solid #c0756a;margin-bottom:18px}
+    .idf .lbl{font-size:6.5pt;text-transform:uppercase;letter-spacing:.1em;font-weight:bold;margin-bottom:3px}
+    .id-grid .idf .lbl{color:#3a7470} .oeuvre-grid .idf .lbl{color:#b86a5e}
+    .idf .val{font-size:11pt}
+    .sec-block{margin-bottom:14px}
+    .sec-hdr{background:#1a1a2e;color:#fff;padding:4px 10px;border-radius:3px;font-size:8pt;font-weight:bold;letter-spacing:.07em;margin-bottom:7px}
+    .grp{margin-bottom:7px;padding-left:3px}
+    .gl{font-size:6.5pt;text-transform:uppercase;letter-spacing:.07em;color:#b86a5e;font-weight:bold;margin-bottom:4px}
+    .tags{display:flex;flex-wrap:wrap;gap:4px 5px}
+    .tag{padding:3px 10px;background:#e0f0ee;border:1px solid #3a7470;border-radius:13px;font-size:8.5pt;color:#1a1a2e}
+    .empty{color:#bbb;font-style:italic;font-size:8.5pt}
+    .comment-bar{background:#3a7470;color:#fff;text-align:center;padding:11px;border-radius:5px;margin:14px 0 10px}
+    .comment-bar h2{font-size:13pt;font-family:Georgia,serif}
+    .recap{text-align:center;font-size:9pt;color:#888;margin-bottom:11px}
+    .cbox{background:#faf8f4;border:1px solid #d0e8e7;border-radius:5px;padding:14px;min-height:120px;font-size:11pt;line-height:1.9;white-space:pre-wrap;word-break:break-word}
+  `;
+  let html = `<style>${css}</style>
+    <div class="title-bar"><h1>Analyse Auditive</h1><p>Commentaire d'écoute</p></div>
+    <div class="id-grid">
+      <div class="idf"><div class="lbl">Nom</div><div class="val">${esc(d.nom)||'-'}</div></div>
+      <div class="idf"><div class="lbl">Prénom</div><div class="val">${esc(d.prenom)||'-'}</div></div>
+      <div class="idf"><div class="lbl">Classe</div><div class="val">${esc(d.classe)||'-'}</div></div>
+    </div>
+    <div class="oeuvre-grid">
+      <div class="idf"><div class="lbl">Œuvre</div><div class="val">${esc(d.oeuvre)||'-'}</div></div>
+      <div class="idf"><div class="lbl">Compositeur / Interprète</div><div class="val">${esc(d.compositeur)||'-'}</div></div>
+    </div>`;
+
+  d.sections.forEach(({s,g}) => {
+    html += `<div class="sec-block"><div class="sec-hdr">${esc(s).toUpperCase()}</div>`;
+    g.forEach(({l,v}) => {
+      html += `<div class="grp">`;
+      if(l) html += `<div class="gl">${esc(l)}</div>`;
+      html += `<div class="tags">`;
+      if(v.length) v.forEach(t => { html += `<span class="tag">${esc(t)}</span>`; });
+      else html += `<span class="empty">-</span>`;
+      html += `</div></div>`;
+    });
+    html += `</div>`;
+  });
+
+  const recap = [d.prenom,d.nom].filter(Boolean).map(esc).join(' ')
+    + (d.classe ? ' - '+esc(d.classe) : '') + (d.oeuvre ? ' - '+esc(d.oeuvre) : '');
+  const com = d.commentaire ? esc(d.commentaire) : '<span class="empty">Aucun commentaire rédigé.</span>';
+  html += `<div class="comment-bar"><h2>Commentaire d'écoute</h2></div>
+    <div class="recap">${recap}</div>
+    <div class="cbox">${com}</div>`;
+  return html;
+}
+
+// ── Ouverture prévisualisation - Fiche Simple ────────────────────
+function ouvrirPreviewFS() {
+  const btn = document.getElementById('btnFS');
+  btn.disabled = true; btn.textContent = '⏳ Génération…';
+  try {
+    const d = buildDataFS();
+    const pdfStr = renderPDF_FS(d);
+    const pdfB64 = btoa(unescape(encodeURIComponent(pdfStr)));
+    const fname = ('fiche_' + (d.prenom||'eleve') + '_' + (d.nom||''))
+      .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9_]/g,'_') + '.pdf';
+    const body = buildBodyFS(d);
+    const title = (d.prenom||'') + ' ' + (d.nom||'') + ' - Fiche simple';
+    const subtitle = (d.titre||'') + (d.titre && d.compositeur ? ' · ' : '') + (d.compositeur||'');
+    const html = buildPreviewHtml(title, subtitle, body, pdfB64, fname);
+    const win = window.open('','_blank');
+    if(win){ win.document.write(html); win.document.close(); }
+    else {
+      const blob=new Blob([new Uint8Array(pdfStr.split('').map(c=>c.charCodeAt(0)))],{type:'application/pdf'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url;a.download=fname;a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),8000);
+    }
+  } catch(e){ alert('Erreur : '+e.message); }
+  finally { btn.disabled=false; btn.textContent='👁\u00A0 Prévisualiser & Télécharger le PDF'; }
+}
+
+// ── Ouverture prévisualisation - Analyse Auditive ────────────────
+function ouvrirPreviewAA() {
+  const btn = document.getElementById('btnAA');
+  btn.disabled = true; btn.textContent = '⏳ Génération…';
+  try {
+    const d = buildDataAA();
+    const pdfStr = renderPDF_AA(d);
+    const pdfB64 = btoa(unescape(encodeURIComponent(pdfStr)));
+    const fname = ('analyse_' + (d.prenom||'eleve') + '_' + (d.nom||''))
+      .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9_]/g,'_') + '.pdf';
+    const body = buildBodyAA(d);
+    const title = (d.prenom||'') + ' ' + (d.nom||'') + ' - Analyse auditive';
+    const subtitle = (d.oeuvre||'') + (d.oeuvre && d.compositeur ? ' · ' : '') + (d.compositeur||'');
+    const html = buildPreviewHtml(title, subtitle, body, pdfB64, fname);
+    const win = window.open('','_blank');
+    if(win){ win.document.write(html); win.document.close(); }
+    else {
+      const blob=new Blob([new Uint8Array(pdfStr.split('').map(c=>c.charCodeAt(0)))],{type:'application/pdf'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url;a.download=fname;a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),8000);
+    }
+  } catch(e){ alert('Erreur : '+e.message); }
+  finally { btn.disabled=false; btn.textContent='👁\u00A0 Prévisualiser & Télécharger le PDF'; }
+}
+</script>
+</body>
+</html>
