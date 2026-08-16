@@ -1377,13 +1377,40 @@ function closePreview() {
   document.body.style.overflow = '';
 }
 
-function downloadCurrentPdf() {
+async function downloadCurrentPdf() {
   if (!currentPdfBytes) return;
   const blob = new Blob([currentPdfBytes], { type: 'application/pdf' });
+
+  // 1) API de partage native (idéal sur mobile : "Enregistrer dans Fichiers",
+  //    envoyer par mail/AirDrop/WhatsApp… directement au professeur)
+  try {
+    const file = new File([blob], currentPdfName, { type: 'application/pdf' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: currentPdfName });
+      return;
+    }
+  } catch (err) {
+    if (err && err.name === 'AbortError') return; // l'élève a annulé le partage volontairement
+    // sinon on continue vers le téléchargement classique ci-dessous
+  }
+
+  // 2) Téléchargement classique (fonctionne bien sur ordinateur et Android/Chrome)
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = currentPdfName; a.click();
+  a.href = url; a.download = currentPdfName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 8000);
+
+  // Sur certains navigateurs mobiles anciens, le PDF peut s'ouvrir dans un nouvel
+  // onglet plutôt que se télécharger directement : on prévient l'élève.
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isMobile && !(navigator.canShare)) {
+    setTimeout(() => {
+      alert("Si le PDF s'est ouvert dans un nouvel onglet au lieu de se télécharger, utilisez l'icône de partage de votre navigateur pour l'enregistrer ou l'envoyer.");
+    }, 400);
+  }
 }
 
 // ── HTML de prévisualisation - Fiche Simple ──────────────────────
